@@ -1,0 +1,10 @@
+# Build artifacts
+*.o
+connect4_sfml
+
+# IDE
+.vscode/
+.DS_Store
+
+# Debug
+*.dSYM/
