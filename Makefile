@@ -8,11 +8,11 @@ LDFLAGS = -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system
 TARGET = connect4_sfml
 
 # Source files
-SOURCES = connect4_sfml.cpp animation.cpp popup.cpp
+SOURCES = connect4_sfml.cpp animation.cpp popup.cpp start_screen.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Header dependencies
-HEADERS = animation.h popup.h
+HEADERS = animation.h popup.h start_screen.h
 
 # Default target
 all: $(TARGET)

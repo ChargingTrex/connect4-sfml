@@ -56,8 +56,9 @@ void updatePopup(float deltaTime) {
  * @param window SFML render window to draw on
  * @param font Font to use for text rendering (if needed)
  * @param uiTexture Texture containing UI sprite sheet
+ * @param drawTexture Texture containing draw sprite
  */
-void drawWinnerPopup(sf::RenderWindow& window, const sf::Font& font, const sf::Texture* uiTexture) {
+void drawWinnerPopup(sf::RenderWindow& window, const sf::Font& font, const sf::Texture* uiTexture, const sf::Texture* drawTexture) {
     if (!g_popup.isActive) return;
     
     std::uint8_t alpha = static_cast<std::uint8_t>(g_popup.alpha);
@@ -133,17 +134,38 @@ void drawWinnerPopup(sf::RenderWindow& window, const sf::Font& font, const sf::T
         window.draw(gameOverText);
     }
     
-    // 4. Draw decorative line separator
-    sf::RectangleShape separator(sf::Vector2f(POPUP_WIDTH - 100, 4.0f));
-    separator.setPosition(sf::Vector2f(popupX + 50, popupY + 130.0f));
-    if (g_popup.winningPlayer == 1) {
-        separator.setFillColor(sf::Color(255, 0, 100, alpha));
-    } else if (g_popup.winningPlayer == 2) {
-        separator.setFillColor(sf::Color(255, 220, 0, alpha));
+    // 4. Draw "DRAW" sprite for draw case, otherwise draw decorative line separator
+    if (g_popup.winningPlayer == 0 && drawTexture) {
+        // Draw the draw sprite in place of separator
+        sf::Sprite drawSprite(*drawTexture);
+        
+        float scale = 0.5f; // Adjust scale as needed for nice appearance
+        drawSprite.setScale(sf::Vector2f(scale, scale));
+        
+        sf::FloatRect drawBounds = drawSprite.getLocalBounds();
+        drawSprite.setOrigin(sf::Vector2f(
+            drawBounds.position.x + drawBounds.size.x / 2.0f,
+            drawBounds.position.y + drawBounds.size.y / 2.0f
+        ));
+        
+        float drawSpriteY = popupY + 130.0f;
+        drawSprite.setPosition(sf::Vector2f(popupX + POPUP_WIDTH / 2.0f, drawSpriteY));
+        drawSprite.setColor(sf::Color(255, 255, 255, alpha));
+        
+        window.draw(drawSprite);
     } else {
-        separator.setFillColor(sf::Color(100, 200, 255, alpha));
+        // Draw decorative line separator for win cases
+        sf::RectangleShape separator(sf::Vector2f(POPUP_WIDTH - 100, 4.0f));
+        separator.setPosition(sf::Vector2f(popupX + 50, popupY + 130.0f));
+        if (g_popup.winningPlayer == 1) {
+            separator.setFillColor(sf::Color(255, 0, 100, alpha));
+        } else if (g_popup.winningPlayer == 2) {
+            separator.setFillColor(sf::Color(255, 220, 0, alpha));
+        } else {
+            separator.setFillColor(sf::Color(100, 200, 255, alpha));
+        }
+        window.draw(separator);
     }
-    window.draw(separator);
     
     // 5. Draw winner announcement with neon effect
     sf::Text winnerText(font, g_popup.message);

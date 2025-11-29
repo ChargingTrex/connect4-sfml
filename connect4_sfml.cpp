@@ -4,6 +4,13 @@
 #include <string>
 #include "animation.h"
 #include "popup.h"
+#include "start_screen.h"
+
+// --- Game State Enum ---
+enum GameState {
+    START_SCREEN,
+    PLAYING
+};
 
 // --- Game Constants ---
 constexpr int ROWS = 6;
@@ -26,8 +33,11 @@ const sf::IntRect RESTART_RECT(sf::Vector2i(190, 680), sf::Vector2i(275, 100));
 
 // --- Global Sprite Textures ---
 std::unique_ptr<sf::Texture> g_uiTexture = nullptr;
+std::unique_ptr<sf::Texture> g_drawTexture = nullptr;
+std::unique_ptr<sf::Texture> g_startTexture = nullptr;
 
 // --- Game State Variables ---
+GameState currentState = START_SCREEN; // Start at the start screen
 // Board: 0=Empty, 1=Red, 2=Yellow
 std::vector<std::vector<int>> board(ROWS, std::vector<int>(COLS, 0));
 int currentPlayer = 1; // 1 for Red, 2 for Yellow
@@ -39,6 +49,12 @@ constexpr float TURN_TIME_LIMIT = 10.0f; // 10 seconds per turn
 float currentTurnTime = 0.0f;
 bool timerActive = false;
 
+// --- Exit Button State ---
+static float g_exitButtonX = 0.0f;
+static float g_exitButtonY = 0.0f;
+static float g_exitButtonWidth = 0.0f;
+static float g_exitButtonHeight = 0.0f;
+
 // --- Function Declarations ---
 bool checkWin(int lastRow, int lastCol);
 int dropPiece(int col, int player);
@@ -46,6 +62,8 @@ void resetGame();
 void drawBoard(sf::RenderWindow& window);
 void drawTimer(sf::RenderWindow& window, const sf::Font& font);
 void drawStatus(sf::RenderWindow& window, const sf::Font& font);
+void drawExitButton(sf::RenderWindow& window);
+bool isClickOnGameExitButton(float x, float y);
 
 /**
  * @brief Resets the game board and state variables for a new game.
@@ -218,6 +236,56 @@ void drawTimer(sf::RenderWindow& window, const sf::Font& font) {
 }
 
 /**
+ * @brief Draws an exit button near the timer to return to start screen
+ */
+void drawExitButton(sf::RenderWindow& window) {
+    // Exit button positioned to the left of timer
+    float buttonWidth = 60.0f;
+    float buttonHeight = 35.0f;
+    float buttonX = 20.0f;
+    float buttonY = ROWS * CELL_SIZE + 10.0f;
+    
+    // Store button bounds for click detection
+    g_exitButtonX = buttonX;
+    g_exitButtonY = buttonY;
+    g_exitButtonWidth = buttonWidth;
+    g_exitButtonHeight = buttonHeight;
+    
+    // Draw button background
+    sf::RectangleShape button(sf::Vector2f(buttonWidth, buttonHeight));
+    button.setPosition(sf::Vector2f(buttonX, buttonY));
+    button.setFillColor(sf::Color(200, 50, 50)); // Red
+    button.setOutlineThickness(2.0f);
+    button.setOutlineColor(sf::Color(255, 100, 100));
+    window.draw(button);
+    
+    // Draw "X" text
+    sf::Font font;
+    if (font.openFromFile("/System/Library/Fonts/Helvetica.ttc")) {
+        sf::Text exitText(font, "X");
+        exitText.setCharacterSize(22);
+        exitText.setFillColor(sf::Color::White);
+        exitText.setStyle(sf::Text::Bold);
+        
+        sf::FloatRect textBounds = exitText.getLocalBounds();
+        exitText.setOrigin(sf::Vector2f(
+            textBounds.position.x + textBounds.size.x / 2.0f,
+            textBounds.position.y + textBounds.size.y / 2.0f
+        ));
+        exitText.setPosition(sf::Vector2f(buttonX + buttonWidth / 2.0f, buttonY + buttonHeight / 2.0f));
+        window.draw(exitText);
+    }
+}
+
+/**
+ * @brief Check if a click is on the gameplay exit button
+ */
+bool isClickOnGameExitButton(float x, float y) {
+    return (x >= g_exitButtonX && x <= g_exitButtonX + g_exitButtonWidth &&
+            y >= g_exitButtonY && y <= g_exitButtonY + g_exitButtonHeight);
+}
+
+/**
  * @brief Draws the game status using sprite graphics at the bottom of the window.
  */
 void drawStatus(sf::RenderWindow& window, const sf::Font& font) {
@@ -265,6 +333,24 @@ int main() {
         return 1;
     }
     
+    // Load draw sprite
+    g_drawTexture = std::make_unique<sf::Texture>();
+    if (!g_drawTexture->loadFromFile("assets/draw_sprite.png")) {
+        std::cerr << "--- WARNING ---" << std::endl;
+        std::cerr << "Failed to load draw sprite from assets/draw_sprite.png" << std::endl;
+        std::cerr << "Game will continue but draw sprite won't display." << std::endl;
+        g_drawTexture = nullptr; // Set to nullptr so popup knows to use fallback
+    }
+    
+    // Load start screen sprite
+    g_startTexture = std::make_unique<sf::Texture>();
+    if (!g_startTexture->loadFromFile("assets/start_screen.png")) {
+        std::cerr << "--- WARNING ---" << std::endl;
+        std::cerr << "Failed to load start screen from assets/start_screen.png" << std::endl;
+        std::cerr << "Game will continue but start screen won't display." << std::endl;
+        g_startTexture = nullptr;
+    }
+    
     // Load a font for displaying text (still needed for popup)
     sf::Font font;
     // SFML 3.x Fix: Renamed from loadFromFile to openFromFile
@@ -293,33 +379,53 @@ int main() {
                 window.close();
             }
 
-            // Handle mouse clicks for placing pieces (only if not animating)
+            // Handle mouse clicks
             if (const auto* mouseEvent = event.getIf<sf::Event::MouseButtonPressed>()) {
                 if (mouseEvent->button == sf::Mouse::Button::Left) {
-                    // Check if clicking restart button in game over popup
-                    if (gameOver && isClickOnRestartButton(static_cast<float>(mouseEvent->position.x), 
-                                                           static_cast<float>(mouseEvent->position.y))) {
-                        resetGame();
-                    }
-                    // Normal piece placement
-                    else if (!gameOver && !isAnimationActive()) {
-                        // Calculate which column was clicked using the mouse position
-                        int clickedCol = static_cast<int>(mouseEvent->position.x / CELL_SIZE);
-
-                        // Find the target row for animation
-                        int targetRow = -1;
-                        for (int r = ROWS - 1; r >= 0; --r) {
-                            if (board[r][clickedCol] == 0) {
-                                targetRow = r;
-                                break;
-                            }
+                    float mouseX = static_cast<float>(mouseEvent->position.x);
+                    float mouseY = static_cast<float>(mouseEvent->position.y);
+                    
+                    // Handle clicks on start screen
+                    if (currentState == START_SCREEN) {
+                        if (isClickOnStartButton(mouseX, mouseY)) {
+                            currentState = PLAYING;
+                            timerActive = true;
+                        } else if (isClickOnExitButton(mouseX, mouseY)) {
+                            window.close();
                         }
-                        
-                        if (targetRow != -1) {
-                            // Start the fall animation
-                            initAnimation(clickedCol, targetRow, currentPlayer);
-                        } else {
-                            std::cout << "Column " << clickedCol + 1 << " is full!" << std::endl;
+                    }
+                    // Handle clicks during gameplay
+                    else if (currentState == PLAYING) {
+                        // Check if clicking exit button to return to start screen
+                        if (isClickOnGameExitButton(mouseX, mouseY)) {
+                            // Return to start screen
+                            currentState = START_SCREEN;
+                            resetGame();
+                        }
+                        // Check if clicking restart button in game over popup
+                        else if (gameOver && isClickOnRestartButton(mouseX, mouseY)) {
+                            resetGame();
+                        }
+                        // Normal piece placement
+                        else if (!gameOver && !isAnimationActive()) {
+                            // Calculate which column was clicked using the mouse position
+                            int clickedCol = static_cast<int>(mouseX / CELL_SIZE);
+
+                            // Find the target row for animation
+                            int targetRow = -1;
+                            for (int r = ROWS - 1; r >= 0; --r) {
+                                if (board[r][clickedCol] == 0) {
+                                    targetRow = r;
+                                    break;
+                                }
+                            }
+                            
+                            if (targetRow != -1) {
+                                // Start the fall animation
+                                initAnimation(clickedCol, targetRow, currentPlayer);
+                            } else {
+                                std::cout << "Column " << clickedCol + 1 << " is full!" << std::endl;
+                            }
                         }
                     }
                 }
@@ -333,93 +439,103 @@ int main() {
             }
         }
         
-        // Update animation if active
-        if (isAnimationActive()) {
-            updateAnimation(deltaTime);
-            
-            // Check if animation just finished
-            if (!isAnimationActive()) {
-                // Animation complete - place the piece on board
-                int col = g_animation.column;
-                int row = g_animation.targetRow;
-                int player = g_animation.player;
+        // Only update game logic when in PLAYING state
+        if (currentState == PLAYING) {
+            // Update animation if active
+            if (isAnimationActive()) {
+                updateAnimation(deltaTime);
                 
-                board[row][col] = player;
-                
-                // Check win condition
-                if (checkWin(row, col)) {
-                    gameOver = true;
-                    statusText = (player == 1 ? "Player 1 (Red) WINS!" : "Player 2 (Yellow) WINS!");
-                    initPopup(player, false);
-                    timerActive = false;
-                } else if (checkDraw()) {
-                    gameOver = true;
-                    statusText = "Game Over - It's a DRAW!";
-                    initPopup(0, true);
-                    timerActive = false;
-                } else {
-                    // Switch player and update status
-                    currentPlayer = (currentPlayer == 1) ? 2 : 1;
-                    statusText = (currentPlayer == 1 ? "Player 1 (Red)'s Turn" : "Player 2 (Yellow)'s Turn");
-                    // Reset timer for new turn
-                    currentTurnTime = 0.0f;
-                    timerActive = true;
-                }
-            }
-        }
-        
-        // Update turn timer
-        if (timerActive && !gameOver && !isAnimationActive()) {
-            currentTurnTime += deltaTime;
-            
-            // Check for timeout
-            if (currentTurnTime >= TURN_TIME_LIMIT) {
-                // Find a random valid column
-                std::vector<int> validCols;
-                for (int c = 0; c < COLS; ++c) {
-                    if (board[0][c] == 0) {
-                        validCols.push_back(c);
+                // Check if animation just finished
+                if (!isAnimationActive()) {
+                    // Animation complete - place the piece on board
+                    int col = g_animation.column;
+                    int row = g_animation.targetRow;
+                    int player = g_animation.player;
+                    
+                    board[row][col] = player;
+                    
+                    // Check win condition
+                    if (checkWin(row, col)) {
+                        gameOver = true;
+                        statusText = (player == 1 ? "Player 1 (Red) WINS!" : "Player 2 (Yellow) WINS!");
+                        initPopup(player, false);
+                        timerActive = false;
+                    } else if (checkDraw()) {
+                        gameOver = true;
+                        statusText = "Game Over - It's a DRAW!";
+                        initPopup(0, true);
+                        timerActive = false;
+                    } else {
+                        // Switch player and update status
+                        currentPlayer = (currentPlayer == 1) ? 2 : 1;
+                        statusText = (currentPlayer == 1 ? "Player 1 (Red)'s Turn" : "Player 2 (Yellow)'s Turn");
+                        // Reset timer for new turn
+                        currentTurnTime = 0.0f;
+                        timerActive = true;
                     }
                 }
+            }
+        
+            // Update turn timer
+            if (timerActive && !gameOver && !isAnimationActive()) {
+                currentTurnTime += deltaTime;
                 
-                if (!validCols.empty()) {
-                    // Pick random column
-                    int randomCol = validCols[rand() % validCols.size()];
-                    
-                    // Find target row
-                    int targetRow = -1;
-                    for (int r = ROWS - 1; r >= 0; --r) {
-                        if (board[r][randomCol] == 0) {
-                            targetRow = r;
-                            break;
+                // Check for timeout
+                if (currentTurnTime >= TURN_TIME_LIMIT) {
+                    // Find a random valid column
+                    std::vector<int> validCols;
+                    for (int c = 0; c < COLS; ++c) {
+                        if (board[0][c] == 0) {
+                            validCols.push_back(c);
                         }
                     }
                     
-                    if (targetRow != -1) {
-                        // Auto-place piece with animation
-                        initAnimation(randomCol, targetRow, currentPlayer);
-                        timerActive = false; // Stop timer during animation
+                    if (!validCols.empty()) {
+                        // Pick random column
+                        int randomCol = validCols[rand() % validCols.size()];
+                        
+                        // Find target row
+                        int targetRow = -1;
+                        for (int r = ROWS - 1; r >= 0; --r) {
+                            if (board[r][randomCol] == 0) {
+                                targetRow = r;
+                                break;
+                            }
+                        }
+                        
+                        if (targetRow != -1) {
+                            // Auto-place piece with animation
+                            initAnimation(randomCol, targetRow, currentPlayer);
+                            timerActive = false; // Stop timer during animation
+                        }
                     }
                 }
             }
+            
+            // Update popup fade-in animation
+            updatePopup(deltaTime);
         }
-        
-        // Update popup fade-in animation
-        updatePopup(deltaTime);
 
         // --- Drawing ---
         window.clear(sf::Color(50, 50, 50));
 
-        drawBoard(window);
-        drawStatus(window, font);
-        drawTimer(window, font);
-        
-        // Draw falling piece on top of board
-        drawFallingPiece(window);
-        
-        // Draw winner popup if game is over
-        if (gameOver) {
-            drawWinnerPopup(window, font, g_uiTexture.get());
+        if (currentState == START_SCREEN) {
+            // Draw start screen
+            drawStartScreen(window, g_startTexture.get());
+        } else if (currentState == PLAYING) {
+            // Draw game
+            drawBoard(window);
+            drawStatus(window, font);
+            drawTimer(window, font);
+            drawExitButton(window);  // Draw exit button to return to start screen
+            
+            // Draw falling piece on top of board
+            drawFallingPiece(window);
+            
+            // Draw winner popup if game is over
+            if (gameOver) {
+                drawWinnerPopup(window, font, g_uiTexture.get(), g_drawTexture.get());
+            }
         }
 
         window.display();
