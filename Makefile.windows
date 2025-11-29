@@ -1,0 +1,78 @@
+# Connect4 SFML Makefile for Windows
+# Prerequisites: MinGW-w64 or MSYS2 with g++, SFML 3.x installed
+
+# Compiler and flags
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall
+
+# SFML paths - ADJUST THESE TO YOUR SFML INSTALLATION
+SFML_DIR = C:/SFML
+SFML_INCLUDE = $(SFML_DIR)/include
+SFML_LIB = $(SFML_DIR)/lib
+
+# Include and library flags
+INCLUDES = -I$(SFML_INCLUDE)
+LDFLAGS = -L$(SFML_LIB) -lsfml-graphics -lsfml-window -lsfml-system
+
+# For static linking (no DLLs required), uncomment these instead:
+# CXXFLAGS = -std=c++17 -Wall -DSFML_STATIC
+# LDFLAGS = -L$(SFML_LIB) -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lopengl32 -lwinmm -lgdi32
+
+# Target executable
+TARGET = connect4_sfml.exe
+
+# Source files
+SOURCES = connect4_sfml.cpp animation.cpp popup.cpp start_screen.cpp
+OBJECTS = $(SOURCES:.cpp=.o)
+
+# Header dependencies
+HEADERS = animation.h popup.h start_screen.h
+
+# Default target
+all: $(TARGET)
+	@echo Build complete! Run with: $(TARGET)
+	@echo.
+	@echo IMPORTANT: Make sure SFML DLLs are in the same folder as the .exe:
+	@echo   - sfml-graphics-3.dll
+	@echo   - sfml-window-3.dll
+	@echo   - sfml-system-3.dll
+
+# Link object files to create executable
+$(TARGET): $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
+
+# Compile source files to object files
+%.o: %.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Clean build artifacts
+clean:
+	del /Q $(OBJECTS) $(TARGET) 2>nul
+	@echo Clean complete!
+
+# Rebuild from scratch
+rebuild: clean all
+
+# Run the game
+run: $(TARGET)
+	$(TARGET)
+
+# Help target
+help:
+	@echo Connect4 SFML Windows Build Instructions
+	@echo ========================================
+	@echo.
+	@echo 1. Install MinGW-w64 or MSYS2
+	@echo 2. Install SFML 3.x for Windows
+	@echo 3. Edit SFML_DIR in this Makefile to point to your SFML installation
+	@echo 4. Run: mingw32-make -f Makefile.windows
+	@echo.
+	@echo Available targets:
+	@echo   all     - Build the game (default)
+	@echo   clean   - Remove build artifacts
+	@echo   rebuild - Clean and rebuild
+	@echo   run     - Build and run the game
+	@echo   help    - Show this help message
+
+# Phony targets (not actual files)
+.PHONY: all clean rebuild run help
