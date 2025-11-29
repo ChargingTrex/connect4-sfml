@@ -18,7 +18,8 @@ extern PopupState g_popup;
 // Popup functions
 void initPopup(int winningPlayer, bool isDraw = false);
 void updatePopup(float deltaTime);
-void drawWinnerPopup(sf::RenderWindow& window, const sf::Font& font);
+void drawWinnerPopup(sf::RenderWindow& window, const sf::Font& font, const sf::Texture* uiTexture = nullptr);
 void resetPopup();
+bool isClickOnRestartButton(float x, float y);
 
 #endif // POPUP_H

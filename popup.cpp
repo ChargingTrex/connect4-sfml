@@ -12,6 +12,12 @@ constexpr float POPUP_HEIGHT = 250.0f;
 constexpr int WINDOW_WIDTH_POPUP = 700;  // Match main game window
 constexpr int WINDOW_HEIGHT_POPUP = 650;
 
+// Track restart button position for click detection
+static float g_restartButtonX = 0.0f;
+static float g_restartButtonY = 0.0f;
+static float g_restartButtonWidth = 0.0f;
+static float g_restartButtonHeight = 0.0f;
+
 /**
  * @brief Initialize and display winner popup
  * @param winningPlayer Player who won (1=Red, 2=Yellow)
@@ -46,11 +52,12 @@ void updatePopup(float deltaTime) {
 }
 
 /**
- * @brief Draw the arcade-style winner popup overlay
+ * @brief Draw the arcade-style winner popup overlay with sprite graphics
  * @param window SFML render window to draw on
- * @param font Font to use for text rendering
+ * @param font Font to use for text rendering (if needed)
+ * @param uiTexture Texture containing UI sprite sheet
  */
-void drawWinnerPopup(sf::RenderWindow& window, const sf::Font& font) {
+void drawWinnerPopup(sf::RenderWindow& window, const sf::Font& font, const sf::Texture* uiTexture) {
     if (!g_popup.isActive) return;
     
     std::uint8_t alpha = static_cast<std::uint8_t>(g_popup.alpha);
@@ -88,42 +95,43 @@ void drawWinnerPopup(sf::RenderWindow& window, const sf::Font& font) {
     innerBorder.setOutlineColor(sf::Color(255, 255, 255, static_cast<std::uint8_t>(alpha * 0.6f)));
     window.draw(innerBorder);
     
-    // 3. Draw "GAME OVER" text with shadow effect
-    sf::Text gameOverText(font, "GAME OVER");
-    gameOverText.setCharacterSize(56);
-    gameOverText.setFillColor(sf::Color(255, 255, 255, alpha));
-    gameOverText.setStyle(sf::Text::Bold);
-    
-    // Shadow layer for depth
-    sf::Text gameOverShadow(font, "GAME OVER");
-    gameOverShadow.setCharacterSize(56);
-    gameOverShadow.setFillColor(sf::Color(0, 0, 0, static_cast<std::uint8_t>(alpha * 0.7f)));
-    gameOverShadow.setStyle(sf::Text::Bold);
-    
-    sf::FloatRect gameOverBounds = gameOverText.getLocalBounds();
-    gameOverText.setOrigin(sf::Vector2f(
-        gameOverBounds.position.x + gameOverBounds.size.x / 2.0f,
-        gameOverBounds.position.y + gameOverBounds.size.y / 2.0f
-    ));
-    gameOverShadow.setOrigin(gameOverText.getOrigin());
-    
-    float gameOverY = popupY + 70.0f;
-    gameOverText.setPosition(sf::Vector2f(popupX + POPUP_WIDTH / 2.0f, gameOverY));
-    gameOverShadow.setPosition(sf::Vector2f(popupX + POPUP_WIDTH / 2.0f + 4.0f, gameOverY + 4.0f));
-    
-    // Draw shadow first, then text
-    window.draw(gameOverShadow);
-    
-    // Add neon outline to GAME OVER text
-    gameOverText.setOutlineThickness(2.0f);
-    if (g_popup.winningPlayer == 1) {
-        gameOverText.setOutlineColor(sf::Color(255, 0, 100, alpha));
-    } else if (g_popup.winningPlayer == 2) {
-        gameOverText.setOutlineColor(sf::Color(255, 220, 0, alpha));
+    // 3. Draw "GAME OVER" sprite if texture is available
+    if (uiTexture) {
+        sf::Sprite gameOverSprite(*uiTexture);
+        // SFML 3.x Fix: IntRect uses Vector2 for position and size
+        gameOverSprite.setTextureRect(sf::IntRect(sf::Vector2i(85, 465), sf::Vector2i(485, 100))); // GAME_OVER_RECT
+        
+        float scale = 0.8f;
+        gameOverSprite.setScale(sf::Vector2f(scale, scale));
+        
+        sf::FloatRect gameOverBounds = gameOverSprite.getLocalBounds();
+        gameOverSprite.setOrigin(sf::Vector2f(
+            gameOverBounds.position.x + gameOverBounds.size.x / 2.0f,
+            gameOverBounds.position.y + gameOverBounds.size.y / 2.0f
+        ));
+        
+        float gameOverY = popupY + 70.0f;
+        gameOverSprite.setPosition(sf::Vector2f(popupX + POPUP_WIDTH / 2.0f, gameOverY));
+        gameOverSprite.setColor(sf::Color(255, 255, 255, alpha));
+        
+        window.draw(gameOverSprite);
     } else {
-        gameOverText.setOutlineColor(sf::Color(100, 200, 255, alpha));
+        // Fallback to text if sprite not available
+        sf::Text gameOverText(font, "GAME OVER");
+        gameOverText.setCharacterSize(56);
+        gameOverText.setFillColor(sf::Color(255, 255, 255, alpha));
+        gameOverText.setStyle(sf::Text::Bold);
+        
+        sf::FloatRect gameOverBounds = gameOverText.getLocalBounds();
+        gameOverText.setOrigin(sf::Vector2f(
+            gameOverBounds.position.x + gameOverBounds.size.x / 2.0f,
+            gameOverBounds.position.y + gameOverBounds.size.y / 2.0f
+        ));
+        
+        float gameOverY = popupY + 70.0f;
+        gameOverText.setPosition(sf::Vector2f(popupX + POPUP_WIDTH / 2.0f, gameOverY));
+        window.draw(gameOverText);
     }
-    window.draw(gameOverText);
     
     // 4. Draw decorative line separator
     sf::RectangleShape separator(sf::Vector2f(POPUP_WIDTH - 100, 4.0f));
@@ -175,25 +183,57 @@ void drawWinnerPopup(sf::RenderWindow& window, const sf::Font& font) {
     window.draw(winnerShadow);
     window.draw(winnerText);
     
-    // 6. Draw restart instruction with pulsing effect
-    float pulseAlpha = alpha * (0.7f + 0.3f * std::sin(g_popup.alpha / 40.0f));
-    sf::Text restartText(font, ">> PRESS R TO RESTART <<");
-    restartText.setCharacterSize(22);
-    restartText.setFillColor(sf::Color(0, 255, 150, static_cast<std::uint8_t>(pulseAlpha)));
-    restartText.setStyle(sf::Text::Bold);
-    restartText.setOutlineThickness(1.5f);
-    restartText.setOutlineColor(sf::Color(0, 200, 100, static_cast<std::uint8_t>(pulseAlpha)));
-    
-    sf::FloatRect restartBounds = restartText.getLocalBounds();
-    restartText.setOrigin(sf::Vector2f(
-        restartBounds.position.x + restartBounds.size.x / 2.0f,
-        restartBounds.position.y + restartBounds.size.y / 2.0f
-    ));
-    restartText.setPosition(sf::Vector2f(
-        popupX + POPUP_WIDTH / 2.0f,
-        popupY + POPUP_HEIGHT - 50.0f
-    ));
-    window.draw(restartText);
+    // 6. Draw restart button sprite if texture is available
+    if (uiTexture) {
+        float pulseAlpha = alpha * (0.8f + 0.2f * std::sin(g_popup.alpha / 40.0f));
+        
+        sf::Sprite restartSprite(*uiTexture);
+        // SFML 3.x Fix: IntRect uses Vector2 for position and size
+        restartSprite.setTextureRect(sf::IntRect(sf::Vector2i(190, 680), sf::Vector2i(275, 100))); // RESTART_RECT
+        
+        float scale = 0.5f;
+        restartSprite.setScale(sf::Vector2f(scale, scale));
+        
+        sf::FloatRect restartBounds = restartSprite.getLocalBounds();
+        restartSprite.setOrigin(sf::Vector2f(
+            restartBounds.position.x + restartBounds.size.x / 2.0f,
+            restartBounds.position.y + restartBounds.size.y / 2.0f
+        ));
+        restartSprite.setPosition(sf::Vector2f(
+            popupX + POPUP_WIDTH / 2.0f,
+            popupY + POPUP_HEIGHT - 50.0f
+        ));
+        restartSprite.setColor(sf::Color(255, 255, 255, static_cast<std::uint8_t>(pulseAlpha)));
+        
+        // Store button bounds for click detection
+        sf::FloatRect globalBounds = restartSprite.getGlobalBounds();
+        g_restartButtonX = globalBounds.position.x;
+        g_restartButtonY = globalBounds.position.y;
+        g_restartButtonWidth = globalBounds.size.x;
+        g_restartButtonHeight = globalBounds.size.y;
+        
+        window.draw(restartSprite);
+    } else {
+        // Fallback to text if sprite not available
+        float pulseAlpha = alpha * (0.7f + 0.3f * std::sin(g_popup.alpha / 40.0f));
+        sf::Text restartText(font, ">> PRESS R TO RESTART <<");
+        restartText.setCharacterSize(22);
+        restartText.setFillColor(sf::Color(0, 255, 150, static_cast<std::uint8_t>(pulseAlpha)));
+        restartText.setStyle(sf::Text::Bold);
+        restartText.setOutlineThickness(1.5f);
+        restartText.setOutlineColor(sf::Color(0, 200, 100, static_cast<std::uint8_t>(pulseAlpha)));
+        
+        sf::FloatRect restartBounds = restartText.getLocalBounds();
+        restartText.setOrigin(sf::Vector2f(
+            restartBounds.position.x + restartBounds.size.x / 2.0f,
+            restartBounds.position.y + restartBounds.size.y / 2.0f
+        ));
+        restartText.setPosition(sf::Vector2f(
+            popupX + POPUP_WIDTH / 2.0f,
+            popupY + POPUP_HEIGHT - 50.0f
+        ));
+        window.draw(restartText);
+    }
 }
 
 /**
@@ -204,4 +244,22 @@ void resetPopup() {
     g_popup.winningPlayer = 0;
     g_popup.alpha = 0.0f;
     g_popup.message = "";
+    // Reset button bounds
+    g_restartButtonX = 0.0f;
+    g_restartButtonY = 0.0f;
+    g_restartButtonWidth = 0.0f;
+    g_restartButtonHeight = 0.0f;
+}
+
+/**
+ * @brief Check if a point (mouse click) is within the restart button
+ * @param x Mouse X position
+ * @param y Mouse Y position
+ * @return true if click is on restart button, false otherwise
+ */
+bool isClickOnRestartButton(float x, float y) {
+    if (!g_popup.isActive) return false;
+    
+    return (x >= g_restartButtonX && x <= g_restartButtonX + g_restartButtonWidth &&
+            y >= g_restartButtonY && y <= g_restartButtonY + g_restartButtonHeight);
 }

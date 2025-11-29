@@ -13,6 +13,20 @@ constexpr float PIECE_RADIUS = 40.0f; // Radius of the game pieces
 constexpr int WINDOW_WIDTH = static_cast<int>(COLS * CELL_SIZE);
 constexpr int WINDOW_HEIGHT = static_cast<int>(ROWS * CELL_SIZE + 50.0f); // Extra height for status bar
 
+// --- Sprite Constants (based on sprite sheet dimensions) ---
+// SFML 3.x Fix: IntRect now uses Vector2 for position and size
+// Player 1 Turn sprite: top red button in sprite sheet
+const sf::IntRect PLAYER1_TURN_RECT(sf::Vector2i(50, 90), sf::Vector2i(550, 100));
+// Player 2 Turn sprite: middle blue button in sprite sheet  
+const sf::IntRect PLAYER2_TURN_RECT(sf::Vector2i(50, 235), sf::Vector2i(550, 100));
+// Game Over sprite: yellow text in sprite sheet
+const sf::IntRect GAME_OVER_RECT(sf::Vector2i(85, 465), sf::Vector2i(485, 100));
+// Restart button sprite: bottom blue button in sprite sheet
+const sf::IntRect RESTART_RECT(sf::Vector2i(190, 680), sf::Vector2i(275, 100));
+
+// --- Global Sprite Textures ---
+std::unique_ptr<sf::Texture> g_uiTexture = nullptr;
+
 // --- Game State Variables ---
 // Board: 0=Empty, 1=Red, 2=Yellow
 std::vector<std::vector<int>> board(ROWS, std::vector<int>(COLS, 0));
@@ -20,11 +34,17 @@ int currentPlayer = 1; // 1 for Red, 2 for Yellow
 bool gameOver = false;
 std::string statusText = "Player 1 (Red)'s Turn";
 
+// --- Turn Timer Variables ---
+constexpr float TURN_TIME_LIMIT = 10.0f; // 10 seconds per turn
+float currentTurnTime = 0.0f;
+bool timerActive = false;
+
 // --- Function Declarations ---
 bool checkWin(int lastRow, int lastCol);
 int dropPiece(int col, int player);
 void resetGame();
 void drawBoard(sf::RenderWindow& window);
+void drawTimer(sf::RenderWindow& window, const sf::Font& font);
 void drawStatus(sf::RenderWindow& window, const sf::Font& font);
 
 /**
@@ -39,6 +59,8 @@ void resetGame() {
     currentPlayer = 1;
     gameOver = false;
     statusText = "Player 1 (Red)'s Turn";
+    currentTurnTime = 0.0f;
+    timerActive = true;
     resetAnimation();
     resetPopup();
 }
@@ -155,36 +177,74 @@ void drawBoard(sf::RenderWindow& window) {
 }
 
 /**
- * @brief Draws the game status text at the bottom of the window.
+ * @brief Draws a timer display next to the player indicator
+ */
+void drawTimer(sf::RenderWindow& window, const sf::Font& font) {
+    if (!timerActive || gameOver) return;
+    
+    float timeRemaining = TURN_TIME_LIMIT - currentTurnTime;
+    if (timeRemaining < 0.0f) timeRemaining = 0.0f;
+    
+    // Draw timer circle
+    sf::CircleShape timerCircle(25.0f);
+    timerCircle.setPosition(sf::Vector2f(WINDOW_WIDTH - 80.0f, ROWS * CELL_SIZE + 5.0f));
+    
+    // Color based on time remaining
+    if (timeRemaining > 5.0f) {
+        timerCircle.setFillColor(sf::Color(0, 200, 0, 180)); // Green
+    } else if (timeRemaining > 3.0f) {
+        timerCircle.setFillColor(sf::Color(255, 200, 0, 180)); // Yellow
+    } else {
+        timerCircle.setFillColor(sf::Color(255, 0, 0, 180)); // Red
+    }
+    timerCircle.setOutlineThickness(2.0f);
+    timerCircle.setOutlineColor(sf::Color::White);
+    window.draw(timerCircle);
+    
+    // Draw time number
+    int seconds = static_cast<int>(std::ceil(timeRemaining));
+    sf::Text timeText(font, std::to_string(seconds));
+    timeText.setCharacterSize(24);
+    timeText.setFillColor(sf::Color::White);
+    timeText.setStyle(sf::Text::Bold);
+    
+    sf::FloatRect textBounds = timeText.getLocalBounds();
+    timeText.setOrigin(sf::Vector2f(
+        textBounds.position.x + textBounds.size.x / 2.0f,
+        textBounds.position.y + textBounds.size.y / 2.0f
+    ));
+    timeText.setPosition(sf::Vector2f(WINDOW_WIDTH - 55.0f, ROWS * CELL_SIZE + 25.0f));
+    window.draw(timeText);
+}
+
+/**
+ * @brief Draws the game status using sprite graphics at the bottom of the window.
  */
 void drawStatus(sf::RenderWindow& window, const sf::Font& font) {
-    // SFML 3.x Fix: Text constructor now requires font as first parameter
-    sf::Text status(font, statusText);
-    status.setCharacterSize(24);
-    status.setFillColor(sf::Color::White);
+    if (!g_uiTexture) return; // Safety check
     
-    // Center the text horizontally in the status bar area
-    sf::FloatRect textRect = status.getLocalBounds();
-    // SFML 3.x Fix: Accessing FloatRect members using new position and size members
-    status.setOrigin(sf::Vector2f(
-        textRect.position.x + textRect.size.x / 2.0f, 
-        textRect.position.y + textRect.size.y / 2.0f
-    ));
-    // SFML 3.x Fix: use sf::Vector2f
-    status.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.0f, ROWS * CELL_SIZE + 25.0f)); 
-
-    window.draw(status);
-
-    if (gameOver) {
-        // Draw a "New Game" button prompt if the game is over
-        // SFML 3.x Fix: Text constructor now requires font as first parameter
-        sf::Text restartPrompt(font, "Press R to Restart");
-        restartPrompt.setCharacterSize(18);
-        restartPrompt.setFillColor(sf::Color::Green);
-        // SFML 3.x Fix: use sf::Vector2f
-        restartPrompt.setPosition(sf::Vector2f(WINDOW_WIDTH - 200.0f, ROWS * CELL_SIZE + 10.0f));
-        window.draw(restartPrompt);
+    // Draw the current player's turn indicator sprite
+    sf::Sprite turnSprite(*g_uiTexture);
+    
+    if (currentPlayer == 1) {
+        turnSprite.setTextureRect(PLAYER1_TURN_RECT);
+    } else {
+        turnSprite.setTextureRect(PLAYER2_TURN_RECT);
     }
+    
+    // Scale sprite to fit status bar (adjust scale as needed)
+    float scale = 0.25f; // Adjust this to make sprite bigger/smaller
+    turnSprite.setScale(sf::Vector2f(scale, scale));
+    
+    // Center the sprite in the status bar
+    sf::FloatRect spriteBounds = turnSprite.getLocalBounds();
+    turnSprite.setOrigin(sf::Vector2f(
+        spriteBounds.position.x + spriteBounds.size.x / 2.0f,
+        spriteBounds.position.y + spriteBounds.size.y / 2.0f
+    ));
+    turnSprite.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.0f, ROWS * CELL_SIZE + 25.0f));
+    
+    window.draw(turnSprite);
 }
 
 /**
@@ -195,7 +255,17 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(sf::Vector2u(WINDOW_WIDTH, WINDOW_HEIGHT)), "Connect Four (C++/SFML)", sf::Style::Close);
     window.setFramerateLimit(60);
 
-    // Load a font for displaying status text
+    // Load sprite textures
+    g_uiTexture = std::make_unique<sf::Texture>();
+    // SFML 3.x Fix: Texture loading uses loadFromFile
+    if (!g_uiTexture->loadFromFile("assets/ui_sprites.jpg")) {
+        std::cerr << "--- SPRITE ERROR ---" << std::endl;
+        std::cerr << "Failed to load UI sprite sheet from assets/ui_sprites.jpg" << std::endl;
+        std::cerr << "Make sure the assets directory exists in the game folder." << std::endl;
+        return 1;
+    }
+    
+    // Load a font for displaying text (still needed for popup)
     sf::Font font;
     // SFML 3.x Fix: Renamed from loadFromFile to openFromFile
     // Using macOS system font (Helvetica)
@@ -226,7 +296,13 @@ int main() {
             // Handle mouse clicks for placing pieces (only if not animating)
             if (const auto* mouseEvent = event.getIf<sf::Event::MouseButtonPressed>()) {
                 if (mouseEvent->button == sf::Mouse::Button::Left) {
-                    if (!gameOver && !isAnimationActive()) {
+                    // Check if clicking restart button in game over popup
+                    if (gameOver && isClickOnRestartButton(static_cast<float>(mouseEvent->position.x), 
+                                                           static_cast<float>(mouseEvent->position.y))) {
+                        resetGame();
+                    }
+                    // Normal piece placement
+                    else if (!gameOver && !isAnimationActive()) {
                         // Calculate which column was clicked using the mouse position
                         int clickedCol = static_cast<int>(mouseEvent->position.x / CELL_SIZE);
 
@@ -275,14 +351,55 @@ int main() {
                     gameOver = true;
                     statusText = (player == 1 ? "Player 1 (Red) WINS!" : "Player 2 (Yellow) WINS!");
                     initPopup(player, false);
+                    timerActive = false;
                 } else if (checkDraw()) {
                     gameOver = true;
                     statusText = "Game Over - It's a DRAW!";
                     initPopup(0, true);
+                    timerActive = false;
                 } else {
                     // Switch player and update status
                     currentPlayer = (currentPlayer == 1) ? 2 : 1;
                     statusText = (currentPlayer == 1 ? "Player 1 (Red)'s Turn" : "Player 2 (Yellow)'s Turn");
+                    // Reset timer for new turn
+                    currentTurnTime = 0.0f;
+                    timerActive = true;
+                }
+            }
+        }
+        
+        // Update turn timer
+        if (timerActive && !gameOver && !isAnimationActive()) {
+            currentTurnTime += deltaTime;
+            
+            // Check for timeout
+            if (currentTurnTime >= TURN_TIME_LIMIT) {
+                // Find a random valid column
+                std::vector<int> validCols;
+                for (int c = 0; c < COLS; ++c) {
+                    if (board[0][c] == 0) {
+                        validCols.push_back(c);
+                    }
+                }
+                
+                if (!validCols.empty()) {
+                    // Pick random column
+                    int randomCol = validCols[rand() % validCols.size()];
+                    
+                    // Find target row
+                    int targetRow = -1;
+                    for (int r = ROWS - 1; r >= 0; --r) {
+                        if (board[r][randomCol] == 0) {
+                            targetRow = r;
+                            break;
+                        }
+                    }
+                    
+                    if (targetRow != -1) {
+                        // Auto-place piece with animation
+                        initAnimation(randomCol, targetRow, currentPlayer);
+                        timerActive = false; // Stop timer during animation
+                    }
                 }
             }
         }
@@ -295,13 +412,14 @@ int main() {
 
         drawBoard(window);
         drawStatus(window, font);
+        drawTimer(window, font);
         
         // Draw falling piece on top of board
         drawFallingPiece(window);
         
         // Draw winner popup if game is over
         if (gameOver) {
-            drawWinnerPopup(window, font);
+            drawWinnerPopup(window, font, g_uiTexture.get());
         }
 
         window.display();

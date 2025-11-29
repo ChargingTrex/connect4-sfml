@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 // Animation constants
-constexpr float GRAVITY = 800.0f;        // Pixels per second squared
+constexpr float GRAVITY = 1600.0f;       // Pixels per second squared (doubled for faster animation)
 constexpr float CELL_SIZE_ANIM = 100.0f; // Match main game cell size
 constexpr float PIECE_RADIUS_ANIM = 40.0f;
 
