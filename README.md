@@ -29,9 +29,8 @@ A modern, feature-rich implementation of the classic Connect Four game built wit
 - [Technical Details](#-technical-details)
 - [System Requirements](#-system-requirements)
 - [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
 - [Contributors](#-contributors)
-- [License](#-license)
+
 
 ---
 
