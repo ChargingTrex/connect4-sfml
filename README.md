@@ -87,8 +87,10 @@ This implementation brings the timeless game to life with:
 
 
 
-![WhatsApp I![WhatsApp Image 2025-11-30 at 22 23 32_221afd28](https://github.com/user-attachments/assets/5be967f0-57be-4c9e-9dc1-761f09b51e76)
-mage 2025-11-30 at 22 23 32_57be185b](https://github.com/user-attachments/assets/f7e2e6a4-da3c-415b-9338-db866853238a)
+![WhatsApp Image 2025-11-30 at 22 23 32_221afd28](https://github.com/user-attachments/assets/ae87a621-e6d9-4be0-baac-952f6ccdea37)
+
+![WhatsApp Image 2025-11-30 at 22 23 32_57be185b](https://github.com/user-attachments/assets/fde9160b-59ed-43a9-b3a4-2b1f9a3403e7)
+
 
 [Start Screen]  [Gameplay]  [Victory Screen]
 
