@@ -1,4 +1,5 @@
-## 💾**Connect 4**
+## 💾**Connect 4** <br>
+### **Drop. Align. Win.**
 ### 🎯**Game Overview**
 This is a classic two-player Connect Four game implemented in C++ using the SFML  for graphics, window management, and user input. The game includes features like smooth piece drop animation, a game over popup and a turn timer.
 ### ✨**Features**
@@ -30,4 +31,7 @@ These instructions assume you have the SFML libraries (3.x) installed and config
 ### **3. Linux (GCC)**
 **Build:** g++ *.cpp -o connect4_sfml -std=c++17 $(pkg-config --cflags --libs sfml-graphics sfml-window sfml-system) <br>
 **Run:** ./connect4_sfml.exe
+### 🧑‍💻**Contributors**
+This Connect Four game was developed as a collaborative C++/SFML project by: <br>
+**Vishaal S** **, Armaan Sadat** **, Joshua John** **, Shruthika Nair** **, Arun Balaji**
 ### 🔴🟡**ENJOY THE GAME**🔴🟡
