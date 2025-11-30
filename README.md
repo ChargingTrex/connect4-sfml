@@ -465,38 +465,9 @@ If the game runs slowly:
 
 ---
 
-## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
 
-1. **Fork the repository**
-2. **Create a feature branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit your changes** (`git commit -m 'Add some AmazingFeature'`)
-4. **Push to the branch** (`git push origin feature/AmazingFeature`)
-5. **Open a Pull Request**
 
-### Development Guidelines
-
-- Follow C++17 standards
-- Maintain modular architecture
-- Comment complex algorithms
-- Test on multiple platforms before submitting
-- Update documentation for new features
-
-### Ideas for Contributions
-
-- [ ] Add AI opponent (single-player mode)
-- [ ] Implement sound effects and background music
-- [ ] Add difficulty levels
-- [ ] Create online multiplayer support
-- [ ] Add game statistics tracking
-- [ ] Implement undo/redo functionality
-- [ ] Add customizable themes and colors
-- [ ] Create replay system
-- [ ] Add achievements system
-- [ ] Implement save/load game state
-
----
 
 ## 🧑‍💻 Contributors
 
@@ -514,32 +485,11 @@ This Connect Four game was developed as a collaborative C++/SFML project by:
 
 </div>
 
----
 
-## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
 
-## 🙏 Acknowledgments
 
-- **SFML Team** - For the excellent multimedia library
-- **Connect Four** - Original game by Milton Bradley (Hasbro)
-- **Contributors** - For their dedication and hard work
-
----
-
-## 📞 Contact & Support
-
-For questions, suggestions, or issues:
-
-- **Open an Issue**: [GitHub Issues](https://github.com/yourusername/connect4-sfml/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/connect4-sfml/discussions)
-
----
-
-<div align="center">
 
 ### 🔴🟡 **ENJOY THE GAME!** 🔴🟡
 
