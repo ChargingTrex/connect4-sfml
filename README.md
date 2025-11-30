@@ -85,8 +85,10 @@ This implementation brings the timeless game to life with:
 
 ## 📸 Screenshots
 
-> *Note*: Add screenshots of your game here to showcase the start screen, gameplay, and game over popup.
 
+
+![WhatsApp I![WhatsApp Image 2025-11-30 at 22 23 32_221afd28](https://github.com/user-attachments/assets/5be967f0-57be-4c9e-9dc1-761f09b51e76)
+mage 2025-11-30 at 22 23 32_57be185b](https://github.com/user-attachments/assets/f7e2e6a4-da3c-415b-9338-db866853238a)
 
 [Start Screen]  [Gameplay]  [Victory Screen]
 
