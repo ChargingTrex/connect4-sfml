@@ -40,60 +40,54 @@ A modern, feature-rich implementation of the classic Connect Four game built wit
 Connect 4 is a classic two-player strategy game where players take turns dropping colored discs into a vertical grid. The objective is to be the first to form a horizontal, vertical, or diagonal line of four discs of your color.
 
 This implementation brings the timeless game to life with:
-- *Stunning graphics* powered by SFML 3.x
-- *Smooth physics-based animations* for piece drops
-- *Interactive UI elements* with visual feedback
-- *Turn-based timer system* to keep the game moving
-- *Professional game state management* with start screen and game over popups
+- **Stunning graphics** powered by SFML 3.x
+- **Smooth physics-based animations** for piece drops
+- **Interactive UI elements** with visual feedback
+- **Turn-based timer system** to keep the game moving
+- **Professional game state management** with start screen and game over popups
 
 ---
 
 ## ✨ Features
 
 ### 🎮 Core Gameplay
-- *Classic 6×7 Grid*: Standard Connect Four board dimensions for authentic gameplay
-- *Two-Player Mode*: Local multiplayer for Player 1 (Red) vs Player 2 (Yellow)
-- *Win Detection*: Automatic detection of horizontal, vertical, and diagonal wins
-- *Draw Detection*: Recognizes when the board is full with no winner
+- **Classic 6×7 Grid**: Standard Connect Four board dimensions for authentic gameplay
+- **Two-Player Mode**: Local multiplayer for Player 1 (Red) vs Player 2 (Yellow)
+- **Win Detection**: Automatic detection of horizontal, vertical, and diagonal wins
+- **Draw Detection**: Recognizes when the board is full with no winner
 
 ### 🎨 Visual & Animation
-- *Gravity-Based Animation*: Realistic falling piece physics with acceleration
-- *Smooth Transitions*: Polished animations for piece placement
-- *Custom Graphics*: Hand-crafted sprites for board, pieces, and UI elements
-- *Visual Feedback*: Hover effects and interactive button states
-- *Professional UI*: Clean, modern interface with custom fonts and sprites
+- **Gravity-Based Animation**: Realistic falling piece physics with acceleration
+- **Smooth Transitions**: Polished animations for piece placement
+- **Custom Graphics**: Hand-crafted sprites for board, pieces, and UI elements
+- **Visual Feedback**: Hover effects and interactive button states
+- **Professional UI**: Clean, modern interface with custom fonts and sprites
 
 ### ⏱ Game Mechanics
-- *Turn Timer*: 10-second countdown per turn to maintain game pace
-- *Auto-Play Fallback*: Automatic random column selection if timer expires
-- *Player Indicators*: Clear visual display of current player's turn
-- *Status Display*: Real-time game status with sprite-based graphics
+- **Turn Timer**: 10-second countdown per turn to maintain game pace
+- **Auto-Play Fallback**: Automatic random column selection if timer expires
+- **Player Indicators**: Clear visual display of current player's turn
+- **Status Display**: Real-time game status with sprite-based graphics
 
 ### 🖥 User Interface
-- *Start Screen*: Welcoming menu with Start and Exit buttons
-- *Game Over Popup*: Animated victory/draw screen with restart option
-- *Exit Button*: Quick return to start screen during gameplay
-- *Responsive Controls*: Intuitive mouse-based interaction
+- **Start Screen**: Welcoming menu with Start and Exit buttons
+- **Game Over Popup**: Animated victory/draw screen with restart option
+- **Exit Button**: Quick return to start screen during gameplay
+- **Responsive Controls**: Intuitive mouse-based interaction
 
 ### 🔧 Technical Features
-- *SFML 3.x Compatible*: Built for the latest SFML version with modern C++ practices
-- *Modular Architecture*: Clean separation of concerns (animation, popup, start screen)
-- *Event-Driven Design*: Efficient handling of user input and game events
-- *Cross-Platform*: Runs on macOS, Windows, and Linux
+- **SFML 3.x Compatible**: Built for the latest SFML version with modern C++ practices
+- **Modular Architecture**: Clean separation of concerns (animation, popup, start screen)
+- **Event-Driven Design**: Efficient handling of user input and game events
+- **Cross-Platform**: Runs on macOS, Windows, and Linux
 
 ---
 
 ## 📸 Screenshots
 
+![Start Screen](https://github.com/user-attachments/assets/ae87a621-e6d9-4be0-baac-952f6ccdea37)
 
-
-![WhatsApp Image 2025-11-30 at 22 23 32_221afd28](https://github.com/user-attachments/assets/ae87a621-e6d9-4be0-baac-952f6ccdea37)
-
-![WhatsApp Image 2025-11-30 at 22 23 32_57be185b](https://github.com/user-attachments/assets/fde9160b-59ed-43a9-b3a4-2b1f9a3403e7)
-
-
-[Start Screen]  [Gameplay]  [Victory Screen]
-
+![Gameplay](https://github.com/user-attachments/assets/fde9160b-59ed-43a9-b3a4-2b1f9a3403e7)
 
 ---
 
@@ -103,115 +97,115 @@ This implementation brings the timeless game to life with:
 
 Before building the game, ensure you have the following installed:
 
-1. *C++ Compiler* (supporting C++17 or later)
+1. **C++ Compiler** (supporting C++17 or later)
    - macOS: Clang (via Xcode Command Line Tools)
    - Windows: MinGW-w64 or MSVC
    - Linux: GCC/G++
 
-2. *SFML Library 3.x*
+2. **SFML Library 3.x**
    - Required modules: sfml-graphics, sfml-window, sfml-system
 
-3. *Build Tools*
+3. **Build Tools**
    - macOS/Linux: Make (optional, for using Makefile)
    - Windows: Make or manual compilation
 
 ### Installing SFML
 
 #### macOS (Homebrew)
-bash
+```bash
 brew install sfml
-
+```
 
 #### Windows (MSYS2/MinGW)
-bash
+```bash
 pacman -S mingw-w64-x86_64-sfml
-
+```
 
 #### Linux (Ubuntu/Debian)
-bash
+```bash
 sudo apt-get update
 sudo apt-get install libsfml-dev
-
+```
 
 #### Linux (Arch)
-bash
+```bash
 sudo pacman -S sfml
-
+```
 
 ---
 
-## ⚙ Build Instructions
+## ⚙️ Build Instructions
 
 ### Quick Start
 
 Clone the repository and navigate to the project directory:
 
-bash
+```bash
 git clone <repository-url>
 cd connect4-sfml
-
+```
 
 ### Platform-Specific Builds
 
 #### 🍎 macOS (Clang)
 
-*Build:*
-bash
+**Build:**
+```bash
 clang++ *.cpp -o connect4_sfml -std=c++17 \
   -I/opt/homebrew/include \
   -L/opt/homebrew/lib \
   -lsfml-graphics -lsfml-window -lsfml-system
+```
 
-
-*Run:*
-bash
+**Run:**
+```bash
 ./connect4_sfml
-
+```
 
 #### 🪟 Windows (MinGW/GCC)
 
-*Build:*
-bash
+**Build:**
+```bash
 g++ *.cpp -o connect4_sfml.exe -std=c++17 \
   -lsfml-graphics -lsfml-window -lsfml-system
+```
 
-
-*Run:*
-bash
+**Run:**
+```bash
 ./connect4_sfml.exe
+```
 
-
-*Alternative (using Makefile.windows):*
-bash
+**Alternative (using Makefile.windows):**
+```bash
 mingw32-make -f Makefile.windows
 ./connect4_sfml.exe
-
+```
 
 #### 🐧 Linux (GCC)
 
-*Build:*
-bash
+**Build:**
+```bash
 g++ *.cpp -o connect4_sfml -std=c++17 \
   $(pkg-config --cflags --libs sfml-graphics sfml-window sfml-system)
+```
 
-
-*Run:*
-bash
+**Run:**
+```bash
 ./connect4_sfml
+```
 
-
-*Alternative (using Makefile):*
-bash
+**Alternative (using Makefile):**
+```bash
 make
 ./connect4_sfml
-
+```
 
 ### Using Makefiles
 
 The project includes platform-specific Makefiles for easier compilation:
 
-- *macOS/Linux*: make
-- *Windows*: mingw32-make -f Makefile.windows
+- **macOS/Linux**: `make`
+- **Windows**: `mingw32-make -f Makefile.windows`
 
 ---
 
@@ -219,24 +213,24 @@ The project includes platform-specific Makefiles for easier compilation:
 
 ### How to Play
 
-1. *Start the Game*
+1. **Start the Game**
    - Launch the executable
    - Click the "START" button on the start screen
 
-2. *Take Turns*
-   - *Player 1 (Red)* goes first
+2. **Take Turns**
+   - **Player 1 (Red)** goes first
    - Click on a column to drop your piece
    - The piece will fall with realistic gravity animation
-   - You have *10 seconds* per turn
+   - You have **10 seconds** per turn
 
-3. *Win Condition*
-   - Connect *4 pieces* in a row (horizontal, vertical, or diagonal)
+3. **Win Condition**
+   - Connect **4 pieces** in a row (horizontal, vertical, or diagonal)
    - The game will display a victory popup
 
-4. *Draw Condition*
+4. **Draw Condition**
    - If the board fills up with no winner, a draw is declared
 
-5. *Restart or Exit*
+5. **Restart or Exit**
    - Click "RESTART" on the game over popup to play again
    - Click the "EXIT" button to return to the start screen
    - Close the window to quit the application
@@ -262,8 +256,9 @@ The project includes platform-specific Makefiles for easier compilation:
 
 ## 📁 Project Structure
 
-
+```
 connect4-sfml/
+│
 ├── assets/                      # Game assets directory
 │   ├── board_grid.png          # Main game board sprite
 │   ├── draw_sprite.png         # Draw game popup sprite
@@ -286,7 +281,7 @@ connect4-sfml/
 │
 ├── .gitignore                   # Git ignore rules
 └── README.md                    # This file
-
+```
 
 ### Module Descriptions
 
@@ -327,57 +322,69 @@ connect4-sfml/
 
 The game follows a modular, component-based architecture:
 
-
-┌─────────────────────────────────────┐
-│         Main Game Loop              │
-│      (connect4_sfml.cpp)            │
-└──────────┬──────────────────────────┘
-           │
-           ├──► Animation System (animation.h/cpp)
-           ├──► Popup System (popup.h/cpp)
-           ├──► Start Screen (start_screen.h/cpp)
-           └──► Asset Manager (textures, fonts)
-
+```
+┌───────────────────────────────────────────┐
+│          Main Game Loop                   │
+│       (connect4_sfml.cpp)                 │
+└─────────────────┬─────────────────────────┘
+                  │
+                  │
+        ┌─────────┼─────────┐
+        │         │         │
+        ▼         ▼         ▼
+  ┌─────────┐ ┌─────────┐ ┌──────────────┐
+  │Animation│ │ Popup   │ │Start Screen  │
+  │ System  │ │ System  │ │   System     │
+  └─────────┘ └─────────┘ └──────────────┘
+        │         │         │
+        └─────────┴─────────┘
+                  │
+                  ▼
+          ┌───────────────┐
+          │ Asset Manager │
+          │(Textures/Fonts)│
+          └───────────────┘
+```
 
 ### Key Technologies
 
-- *Language*: C++17
-- *Graphics Library*: SFML 3.x
-- *Build System*: Make / Manual Compilation
-- *Design Pattern*: State Machine (START_SCREEN, PLAYING)
+- **Language**: C++17
+- **Graphics Library**: SFML 3.x
+- **Build System**: Make / Manual Compilation
+- **Design Pattern**: State Machine (START_SCREEN, PLAYING)
 
 ### Game States
 
-cpp
+```cpp
 enum GameState {
     START_SCREEN,  // Main menu
     PLAYING        // Active gameplay
 };
-
+```
 
 ### Board Representation
 
-- *Data Structure*: 2D vector std::vector<std::vector<int>>
-- *Dimensions*: 6 rows × 7 columns
-- *Cell Values*:
+- **Data Structure**: 2D vector `std::vector<std::vector<int>>`
+- **Dimensions**: 6 rows × 7 columns
+- **Cell Values**:
   - 0 = Empty
   - 1 = Player 1 (Red)
   - 2 = Player 2 (Yellow)
 
 ### Animation Physics
 
-- *Gravity*: 1600 pixels/second²
-- *Cell Size*: 100×100 pixels
-- *Piece Radius*: 40 pixels
-- *Update Rate*: Delta time based (frame-independent)
+- **Gravity**: 1600 pixels/second²
+- **Cell Size**: 100×100 pixels
+- **Piece Radius**: 40 pixels
+- **Update Rate**: Delta time based (frame-independent)
 
 ### Win Detection Algorithm
 
 The game checks for wins in all four directions from the last placed piece:
-1. *Horizontal*: Left to right
-2. *Vertical*: Top to bottom
-3. *Diagonal (↘)*: Top-left to bottom-right
-4. *Diagonal (↙)*: Top-right to bottom-left
+1. **Horizontal**: Left to right
+2. **Vertical**: Top to bottom
+3. **Diagonal (↘)**: Top-left to bottom-right
+4. **Diagonal (↙)**: Top-right to bottom-left
 
 Each direction is checked for 4 consecutive pieces of the same color.
 
@@ -389,21 +396,21 @@ Each direction is checked for 4 consecutive pieces of the same color.
 
 | Component | Requirement |
 |-----------|-------------|
-| *OS* | macOS 10.15+, Windows 10+, Linux (Ubuntu 20.04+) |
-| *CPU* | Dual-core 1.5 GHz |
-| *RAM* | 512 MB |
-| *Graphics* | OpenGL 2.1 compatible |
-| *Disk Space* | 50 MB |
+| **OS** | macOS 10.15+, Windows 10+, Linux (Ubuntu 20.04+) |
+| **CPU** | Dual-core 1.5 GHz |
+| **RAM** | 512 MB |
+| **Graphics** | OpenGL 2.1 compatible |
+| **Disk Space** | 50 MB |
 
 ### Recommended Requirements
 
 | Component | Requirement |
 |-----------|-------------|
-| *OS* | macOS 12+, Windows 11, Linux (Ubuntu 22.04+) |
-| *CPU* | Quad-core 2.0 GHz+ |
-| *RAM* | 1 GB |
-| *Graphics* | OpenGL 3.3+ compatible |
-| *Disk Space* | 100 MB |
+| **OS** | macOS 12+, Windows 11, Linux (Ubuntu 22.04+) |
+| **CPU** | Quad-core 2.0 GHz+ |
+| **RAM** | 1 GB |
+| **Graphics** | OpenGL 3.3+ compatible |
+| **Disk Space** | 100 MB |
 
 ---
 
@@ -413,35 +420,38 @@ Each direction is checked for 4 consecutive pieces of the same color.
 
 #### SFML Headers Not Found
 
+```
 fatal error: 'SFML/Graphics.hpp' file not found
+```
 
+**Solution**: Ensure SFML is installed and the include path is correct.
 
-*Solution*: Ensure SFML is installed and the include path is correct.
-
-- *macOS*: Check Homebrew installation path (/opt/homebrew/include)
-- *Windows*: Verify SFML is in your compiler's include path
-- *Linux*: Install libsfml-dev package
+- **macOS**: Check Homebrew installation path (`/opt/homebrew/include`)
+- **Windows**: Verify SFML is in your compiler's include path
+- **Linux**: Install `libsfml-dev` package
 
 #### Linking Errors
 
+```
 undefined reference to sf::...
+```
 
-
-*Solution*: Ensure you're linking all required SFML libraries:
-bash
+**Solution**: Ensure you're linking all required SFML libraries:
+```bash
 -lsfml-graphics -lsfml-window -lsfml-system
-
+```
 
 #### Assets Not Loading
 
+```
 Failed to load texture: assets/board_grid.png
+```
 
-
-*Solution*: Ensure the assets/ directory is in the same location as the executable.
+**Solution**: Ensure the `assets/` directory is in the same location as the executable.
 
 #### Window Not Opening
 
-*Solution*: 
+**Solution**: 
 - Check your graphics drivers are up to date
 - Verify OpenGL support on your system
 - Try running with administrator/sudo privileges (if necessary)
@@ -459,11 +469,11 @@ If the game runs slowly:
 
 Contributions are welcome! Here's how you can help:
 
-1. *Fork the repository*
-2. *Create a feature branch* (git checkout -b feature/AmazingFeature)
-3. *Commit your changes* (git commit -m 'Add some AmazingFeature')
-4. *Push to the branch* (git push origin feature/AmazingFeature)
-5. *Open a Pull Request*
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/AmazingFeature`)
+3. **Commit your changes** (`git commit -m 'Add some AmazingFeature'`)
+4. **Push to the branch** (`git push origin feature/AmazingFeature`)
+5. **Open a Pull Request**
 
 ### Development Guidelines
 
@@ -496,11 +506,11 @@ This Connect Four game was developed as a collaborative C++/SFML project by:
 
 | Developer | Role |
 |-----------|------|
-| *Vishaal S* | Core Developer |
-| *Armaan Sadat* | Core Developer |
-| *Joshua John* | Core Developer |
-| *Shruthika Nair* | Core Developer |
-| *Arun Balaji* | Core Developer |
+| **Vishaal S** | Core Developer |
+| **Armaan Sadat** | Core Developer |
+| **Joshua John** | Core Developer |
+| **Shruthika Nair** | Core Developer |
+| **Arun Balaji** | Core Developer |
 
 </div>
 
@@ -514,9 +524,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- *SFML Team* - For the excellent multimedia library
-- *Connect Four* - Original game by Milton Bradley (Hasbro)
-- *Contributors* - For their dedication and hard work
+- **SFML Team** - For the excellent multimedia library
+- **Connect Four** - Original game by Milton Bradley (Hasbro)
+- **Contributors** - For their dedication and hard work
 
 ---
 
@@ -524,16 +534,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For questions, suggestions, or issues:
 
-- *Open an Issue*: [GitHub Issues](https://github.com/yourusername/connect4-sfml/issues)
-- *Discussions*: [GitHub Discussions](https://github.com/yourusername/connect4-sfml/discussions)
+- **Open an Issue**: [GitHub Issues](https://github.com/yourusername/connect4-sfml/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/connect4-sfml/discussions)
 
 ---
 
 <div align="center">
 
-### 🔴🟡 *ENJOY THE GAME!* 🔴🟡
+### 🔴🟡 **ENJOY THE GAME!** 🔴🟡
 
-*Made with ❤ using C++ and SFML*
+*Made with ❤️ using C++ and SFML*
 
 [⬆ Back to Top](#-connect-4---sfml-edition)
 
